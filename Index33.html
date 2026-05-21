@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLUB DEPORTIVO MANANTIALES CUSCO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-red: #c60c30;
+            --dark-gray: #111111;
+            --bg-light: #f9f9f9;
+            --text-main: #1a1a1a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: #2b2b2b; display: flex; justify-content: center; min-height: 100vh; }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: white;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--primary-red);
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-logo { display: flex; align-items: center; gap: 10px; }
+        .header-logo svg { width: 38px; height: 38px; flex-shrink: 0; }
+        .header-logo h1 { font-family: 'Anton'; font-size: 13px; line-height: 1.1; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .btn-hymn {
+            background-color: #fcecef; color: var(--primary-red); border: none;
+            padding: 6px 12px; border-radius: 20px; font-size: 10px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; gap: 5px; text-transform: uppercase;
+        }
+        .btn-hymn.playing { background-color: var(--primary-red); color: white; }
+
+        /* VISTAS */
+        .app-view { display: none; width: 100%; }
+        .app-view.active { display: block; }
+
+        /* HERO / PORTADA */
+        .hero {
+            height: 220px;
+            background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            color: white;
+        }
+        .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); }
+        .hero-content { position: relative; z-index: 1; }
+        .hero-content h2 { font-family: 'Anton'; font-size: 2rem; line-height: 1.1; text-transform: uppercase; }
+        .hero-content p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+
+        /* BADGES */
+        .convocatoria-badge {
+            background-color: var(--primary-red); color: white; text-align: center; padding: 30px 20px;
+            clip-path: polygon(50% 0%, 100% 12%, 100% 88%, 50% 100%, 0% 88%, 0% 12%);
+            margin: -20px auto 20px; width: 92%; position: relative; z-index: 10;
+        }
+        .convocatoria-badge h3 { font-family: 'Anton'; font-size: 1.6rem; letter-spacing: 1px; }
+        .convocatoria-badge p { font-size: 0.85rem; opacity: 0.95; margin-top: 4px; }
+
+        .highlight-box { background: #fff3f5; border: 1px dashed var(--primary-red); margin: 10px 20px; padding: 12px; border-radius: 8px; text-align: center; }
+        .highlight-box strong { color: var(--primary-red); font-size: 0.85rem; display: block; text-transform: uppercase; }
+
+        .info-item { display: flex; gap: 15px; padding: 14px 20px; border-bottom: 1px solid #eee; align-items: center; background: white; }
+        .info-item i { color: var(--primary-red); font-size: 1.1rem; width: 25px; text-align: center; }
+        .info-item h4 { font-size: 0.9rem; font-weight: 700; color: #333; }
+        .info-item p { font-size: 0.85rem; color: #666; }
+
+        /* QR SECTIONS */
+        .qr-section { background: #f4f4f4; padding: 20px; text-align: center; margin-top: 15px; }
+        .qr-section h4 { font-family: 'Anton'; font-size: 1.1rem; margin-bottom: 12px; color: var(--dark-gray); letter-spacing: 0.5px; }
+        .qr-grid { display: flex; justify-content: center; gap: 15px; }
+        .qr-card { background: white; padding: 10px; border-radius: 8px; flex: 1; font-size: 0.7rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .qr-card img { width: 100%; height: auto; border: 1px solid #eee; margin-bottom: 6px; }
+
+        .ws-banner-link { text-decoration: none; display: block; margin: 20px; }
+        .ws-banner {
+            background-color: var(--bg-light); color: var(--text-main); padding: 20px;
+            border-radius: 15px; text-align: center; border: 1px solid #ddd; transition: transform 0.2s;
+        }
+        .ws-banner h4 { font-family: 'Anton'; color: var(--primary-red); font-size: 1.3rem; letter-spacing: 0.5px; }
+        .ws-banner img { width: 100%; max-width: 180px; height: auto; border-radius: 8px; margin: 12px auto; display: block; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        /* CARDS */
+        .card-tier { margin: 15px 20px; border-radius: 12px; color: white; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .card-black { background: var(--dark-gray); }
+        .card-red { background: var(--primary-red); }
+        .card-tier h4 { font-family: 'Anton'; font-size: 1.4rem; }
+        
+        .btn-register {
+            width: 100%; padding: 12px; background: white; color: black; border: none;
+            font-weight: 700; margin-top: 15px; text-transform: uppercase; cursor: pointer; border-radius: 6px;
+        }
+
+        /* EVENTOS Y CARRUSEL */
+        .events-container { padding: 20px; display: flex; flex-direction: column; min-height: calc(100vh - 140px); }
+        .event-log-card {
+            background: white; border-left: 5px solid #ccc;
+            padding: 15px; margin-bottom: 12px; border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        .event-log-card.upcoming { border-left-color: var(--primary-red); background: #fff8f8; }
+        .event-log-card h4 { font-weight: 700; color: #222; font-size: 0.95rem; }
+        .event-log-card span { font-size: 0.75rem; color: #666; font-weight: 600; display: block; margin-bottom: 3px; }
+
+        .carousel-section { margin-top: auto; padding-top: 15px; border-top: 2px dashed #ddd; }
+        .carousel-section h4 { font-family: 'Anton'; font-size: 1rem; color: var(--dark-gray); margin-bottom: 8px; text-transform: uppercase; }
+        .carousel-viewport { width: 100%; height: 180px; overflow: hidden; position: relative; border-radius: 10px; background: #eaeaea; }
+        .carousel-slide { width: 100%; height: 100%; display: none; background-size: cover; background-position: center; }
+        .carousel-slide.active { display: block; animation: fadeEffect 0.5s ease-in-out; }
+        @keyframes fadeEffect { from { opacity: 0.6; } to { opacity: 1; } }
+
+        /* ADMIN */
+        .admin-container { padding: 20px; }
+        .admin-form-group { margin-bottom: 15px; }
+        .admin-form-group label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; color: #444; text-transform: uppercase; }
+        .admin-form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Poppins'; font-size: 0.85rem; }
+        
+        .admin-gallery-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .admin-thumb-wrapper { position: relative; width: 100%; height: 75px; border-radius: 6px; overflow: hidden; border: 1px solid #ddd; }
+        .admin-thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .admin-thumb-del { position: absolute; top: 2px; right: 2px; background: var(--primary-red); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* BOTÓN FLOTANTE PDF */
+        .btn-pdf-float {
+            position: fixed; bottom: 90px; right: calc(50% - 215px); 
+            background: #000; color: white; border: 2px solid var(--primary-red);
+            width: 58px; height: 58px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 999; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+        }
+        @media (max-width: 480px) { .btn-pdf-float { right: 20px; } }
+        .btn-pdf-float:hover { transform: scale(1.08); background: var(--primary-red); }
+        .btn-pdf-float i { font-size: 1.1rem; }
+        .btn-pdf-float span { font-size: 7px; font-weight: bold; margin-top: 2px; text-transform: uppercase; }
+
+        /* NAV */
+        nav {
+            position: fixed; bottom: 0; width: 100%; max-width: 450px; background: var(--dark-gray);
+            display: flex; justify-content: space-around; padding: 12px 0; border-top: 3px solid var(--primary-red); z-index: 100;
+        }
+        .nav-item { color: #888; text-align: center; font-size: 0.7rem; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .nav-item.active { color: white; }
+        .nav-item i { display: block; font-size: 1.2rem; margin-bottom: 4px; }
+
+        /* MODAL */
+        #modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .modal-content h2 { font-family: 'Anton'; color: var(--primary-red); font-size: 1.5rem; }
+        .modal-content input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-family: 'Poppins'; }
+
+        /* ESTILOS DE COMPRESIÓN CONTROLADA PARA EL DOCUMENTO PDF */
+        .pdf-advertisement-layout {
+            width: 550px !important;
+            background: white !important;
+            padding: 25px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            font-family: 'Poppins', sans-serif !important;
+        }
+        .pdf-advertisement-layout .app-view { display: block !important; }
+        .pdf-advertisement-layout .hero { height: 160px !important; display: flex !important; }
+        .pdf-advertisement-layout .hero-content h2 { font-size: 1.5rem !important; }
+        .pdf-advertisement-layout .convocatoria-badge { padding: 15px 10px !important; margin: -10px auto 12px !important; display: block !important; }
+        .pdf-advertisement-layout .convocatoria-badge h3 { font-size: 1.2rem !important; }
+        .pdf-advertisement-layout .highlight-box { padding: 8px !important; margin: 8px 10px !important; display: block !important; }
+        .pdf-advertisement-layout .info-item { padding: 10px 10px !important; display: flex !important; }
+        .pdf-advertisement-layout .qr-section { padding: 12px !important; margin-top: 10px !important; display: block !important; }
+        .pdf-advertisement-layout .qr-grid { display: flex !important; }
+        .pdf-advertisement-layout .qr-card img { max-width: 110px !important; }
+        .pdf-advertisement-layout .ws-banner { padding: 12px !important; border-radius: 10px !important; display: block !important; }
+        .pdf-advertisement-layout .ws-banner img { max-width: 120px !important; }
+    </style>
+</head>
+<body>
+
+    <div class="btn-pdf-float" onclick="downloadPublicityPDF()" title="Descargar Publicidad Oficial en PDF">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>PDF A4</span>
+    </div>
+
+    <div class="app-container" id="main-app-content">
+        <header>
+            <div class="header-logo">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="46" stroke="#c60c30" stroke-width="4" fill="none"/>
+                    <circle cx="50" cy="50" r="41" stroke="#111" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+                    <polygon points="50,12 63,38 91,38 68,54 77,81 50,64 23,81 32,54 9,38 37,38" stroke="#000" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="50" r="16" stroke="#333" stroke-width="2.5" fill="white"/>
+                    <circle cx="50" cy="50" r="11" stroke="#333" stroke-width="1.5" fill="none"/>
+                </svg>
+                <h1 id="app-header-title">CLUB DEPORTIVO MANANTIALES CUSCO</h1>
+            </div>
+            <button class="btn-hymn" id="hymn-trigger" onclick="togglePlayHymn()">
+                <i class="fa-solid fa-music"></i> DALE CLUB
+            </button>
+        </header>
+
+        <div id="capture-pdf-area">
+            <div id="view-inicio" class="app-view active">
+                <section class="hero">
+                    <div class="hero-content">
+                        <h2 id="view-hero-title">TEMPORADA FÚTBOL 7 - EN MARCHA</h2>
+                        <p id="view-hero-desc">¡Iniciado con éxito en Mayo 2026! La competencia continúa en Cusco.</p>
+                    </div>
+                </section>
+
+                <div class="convocatoria-badge">
+                    <h3 id="view-badge-title">¡SÚMATE ESTE SÁBADO!</h3>
+                    <p id="view-badge-sub">Convocatoria abierta para nuevos equipos retadores y jugadores individuales</p>
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Próxima Fecha Oficial</strong>
+                    <p id="view-highlight-text" style="font-size: 0.85rem; color: #333; font-weight: 600; margin-top: 2px;">
+                        ¡Este sábado jugamos la siguiente jornada! Inscripciones abiertas durante toda la semana.
+                    </p>
+                </div>
+
+                <div class="info-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <div>
+                        <h4>📍 Sede de los Encuentros</h4>
+                        <p id="view-data-location">Cancha Grande Toto Gol - Camino Real, Manantiales (Cusco)</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <div>
+                        <h4>⏰ Horarios Fijados</h4>
+                        <p id="view-data-schedule">Todos los Sábados: Desde las 3:00 PM-5PM (Fútbol 7)</p>
+                    </div>
+                </div>
+
+                <div class="qr-section">
+                    <h4>COORDINACIÓN DIRECTA</h4>
+                    <div class="qr-grid">
+                        <div class="qr-card">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/51973679407" alt="WhatsApp Bryon">
+                            <p>WHATSAPP BRYON</p>
+                        </div>
+                        <div class="qr-card">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/51937545215" alt="WhatsApp Yeison">
+                            <p>WHATSAPP YEISON</p>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="https://chat.whatsapp.com/GzSREm8PAsG2tI36NymUat" target="_blank" class="ws-banner-link">
+                    <div class="ws-banner">
+                        <h4>🟢 ACCESO GRUPO OFICIAL</h4>
+                        <p style="font-size: 0.8rem; margin-bottom: 5px; color:#555;">Escanea o presiona para unirte al chat general y coordinar partidos</p>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://chat.whatsapp.com/GzSREm8PAsG2tI36NymUat" alt="QR WhatsApp">
+                        <p style="font-size: 0.75rem; color: var(--primary-red); font-weight: bold;">TOCA EN LA PANTALLA PARA INGRESAR</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="view-eventos" class="app-view">
+            <div class="events-container">
+                <h3 style="font-family: 'Anton'; margin-bottom: 15px; color: var(--dark-gray); font-size: 1.4rem;">📅 FECHAS HISTÓRICAS Y EVENTOS</h3>
+                <div id="events-dynamic-list"></div>
+                
+                <div class="carousel-section" id="eventos-carousel-section" style="display: none;">
+                    <h4>📢 GALERÍA DE ANUNCIOS DEL CLUB</h4>
+                    <div class="carousel-viewport" id="carousel-slides-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-admin" class="app-view">
+            <div class="admin-container">
+                <h3 style="font-family: 'Anton'; color: var(--primary-red); margin-bottom: 5px; font-size: 1.4rem;">⚙️ PANEL DE ESTRUCTURA</h3>
+                <p style="font-size: 0.8rem; color: #666; margin-bottom: 20px;">Edita dinámicamente el contenido del afiche publicitario principal.</p>
+                
+                <div class="admin-form-group">
+                    <label>Título de la Campaña</label>
+                    <input type="text" id="input-adm-title" value="TEMPORADA FÚTBOL 7 - EN MARCHA">
+                </div>
+                <div class="admin-form-group">
+                    <label>Subtítulo / Bajada de Anuncio</label>
+                    <input type="text" id="input-adm-desc" value="¡Iniciado con éxito en Mayo 2026! La competencia continúa en Cusco.">
+                </div>
+                <div class="admin-form-group">
+                    <label>Ubicación Física del Complejo</label>
+                    <input type="text" id="input-adm-location" value="Cancha Grande Toto Gol - Camino Real, Manantiales (Cusco)">
+                </div>
+                <div class="admin-form-group">
+                    <label>Horarios Fijados</label>
+                    <input type="text" id="input-adm-schedule" value="Todos los Sábados: Desde las 3:00 PM (Fútbol 7)">
+                </div>
+
+                <div class="admin-form-group" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <label><i class="fa-solid fa-images"></i> Cargar Imágenes para el Carrusel</label>
+                    <input type="file" id="input-adm-images" accept="image/*" multiple onchange="uploadAdminGallery(this)">
+                    <p style="font-size: 0.7rem; color: #666; margin-top: 4px;">Puedes seleccionar múltiples fotos a la vez. Se guardarán en el sistema.</p>
+                    <div class="admin-gallery-preview" id="admin-gallery-preview-area"></div>
+                </div>
+
+                <button class="btn-register" style="background: var(--primary-red); color: white;" onclick="applyAdminChanges()">PUBLICAR ESTRUCTURA</button>
+            </div>
+        </div>
+
+        <div id="action-cards-area" style="background: white; padding-bottom: 20px;">
+            <div class="card-tier card-black">
+                <h4>SOCIO INDIVIDUAL</h4>
+                <p style="font-size: 0.8rem; opacity: 0.9; margin-top: 4px;">Inscríbete de forma personal e intégrate al grupo de juego regular de este sábado.</p>
+                <button class="btn-register" onclick="openRegistration('Socio Individual')">Unirme como Socio</button>
+            </div>
+
+            <div class="card-tier card-red">
+                <h4>EQUIPO RETADOR</h4>
+                <p style="font-size: 0.8rem; opacity: 0.9; margin-top: 4px;">Registra los datos de tu plantel para agendar un partido en la fecha vigente.</p>
+                <button class="btn-register" style="color: white; background: black;" onclick="openRegistration('Equipo Retador')">Inscribir Equipo Retador</button>
+            </div>
+        </div>
+
+        <nav>
+            <a onclick="changeTab('inicio')" id="tab-inicio" class="nav-item active"><i class="fa-solid fa-house"></i>INICIO</a>
+            <a onclick="changeTab('eventos')" id="tab-eventos" class="nav-item"><i class="fa-solid fa-calendar-days"></i>EVENTOS</a>
+            <a onclick="changeTab('admin')" id="tab-admin" class="nav-item"><i class="fa-solid fa-lock-open"></i>ADMIN</a>
+        </nav>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">FORMULARIO</h2>
+            <p id="modal-info" style="font-size: 0.75rem; color: #777; margin-bottom: 12px; font-weight: 600;"></p>
+            <form id="formInscripcionManantiales">
+                <input type="text" id="form-name" placeholder="Nombre completo" required>
+                <input type="text" id="form-dni" placeholder="Número de DNI" required>
+                <input type="tel" id="form-phone" placeholder="Número de WhatsApp" required>
+                <input type="text" id="form-team" placeholder="Nombre de tu Equipo">
+
+                <button type="submit" class="btn-register" style="background: black; color: white;">CONECTAR E INSCRIBIR</button>
+                <button type="button" onclick="closeModal()" style="border: none; background: none; margin-top: 12px; width: 100%; color: #777; font-weight: bold; cursor: pointer;">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <audio id="hymnPlayer" loop preload="auto">
+        <source src="https://ia800501.us.archive.org/11/items/SurvivorEyeOfTheTiger/Survivor-EyeOfTheTiger.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Pega aquí la URL completa generada en el Paso 3 del Apps Script
+        const URL_WEBHOOK_EXCEL = "https://script.google.com/macros/s/AKfycby34dzR2beExBdRwcCyNorbFKuFtH8rWIHU6EY0_cujpjRV3piCupmAvwaxDW-xUZuxuw/exec";
+
+        let arrayEventosBase = [
+            { fecha: "Mayo 2026 - Jornada 02", detalle: "Segunda fecha del torneo. Consolidación del fixture principal en Cusco." },
+            { fecha: "Mayo 2026 - Inauguración", detalle: "Gran Apertura Oficial de Actividades del Club Deportivo Jurídico Manantiales." }
+        ];
+        
+        let arrayEventos = [];
+        let arrayImagesGallery = JSON.parse(localStorage.getItem('club_gallery_data')) || [];
+        let indexCarousel = 0;
+        let timerCarousel = null;
+
+        window.addEventListener("DOMContentLoaded", () => {
+            getSaturdaysDates();
+            buildCarousel();
+            renderAdminGalleryThumbs();
+        });
+
+        function getSaturdaysDates() {
+            let baseDate = new Date();
+            let countSaturdays = 0;
+            let listSaturdays = [];
+
+            for (let i = 0; i < 40; i++) {
+                let checkDay = new Date();
+                checkDay.setDate(baseDate.getDate() + i);
+
+                if (checkDay.getDay() === 6) { 
+                    let formatting = { day: 'numeric', month: 'long', year: 'numeric' };
+                    let outputStr = checkDay.toLocaleDateString('es-PE', formatting).toUpperCase();
+                    
+                    listSaturdays.push({
+                        fecha: `SÁBADO DE PARTIDO - ${outputStr}`,
+                        detalle: "Fecha Oficial de Fútbol 7 en Complejo Toto Gol. Recepción activa de Socios y Equipos Retadores.",
+                        proximo: (countSaturdays === 0)
+                    });
+                    countSaturdays++;
+                }
+                if (countSaturdays >= 4) break;
+            }
+            arrayEventos = [...listSaturdays, ...arrayEventosBase];
+            renderizeEventTab();
+        }
+
+        function changeTab(tabId) {
+            if(tabId === 'admin') {
+                let password = prompt("Ingrese la clave del Administrador:");
+                if(password !== "1234") {
+                    alert("Acceso inválido.");
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.app-view').forEach(v => v.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(`view-${tabId}`).style.display = 'block';
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            if (tabId === 'eventos') {
+                buildCarousel();
+            } else {
+                clearInterval(timerCarousel);
+            }
+        }
+
+        function togglePlayHymn() {
+            const player = document.getElementById('hymnPlayer');
+            const button = document.getElementById('hymn-trigger');
+            if (player.paused) {
+                player.play().then(() => {
+                    button.classList.add('playing');
+                    button.innerHTML = '<i class="fa-solid fa-volume-high"></i> EN REPRODUCCIÓN';
+                }).catch(e => console.log("Audio prevenido", e));
+            } else {
+                player.pause();
+                button.classList.remove('playing');
+                button.innerHTML = '<i class="fa-solid fa-music"></i> DALE CLUB';
+            }
+        }
+
+        let currentSelectionType = "";
+        function openRegistration(type) {
+            currentSelectionType = type; // Guarda "Socio Individual" o "Equipo Retador"
+            document.getElementById('modal').style.display = 'flex';
+            
+            const inputTeam = document.getElementById('form-team');
+            if(type === 'Socio Individual') {
+                document.getElementById('modal-title').innerText = "REGISTRO DE SOCIO";
+                document.getElementById('modal-info').innerText = "Clasificación: Jugador Libre. Se guardará con identificador automático.";
+                inputTeam.value = "Participante Individual";
+                inputTeam.disabled = true;
+            } else {
+                document.getElementById('modal-title').innerText = "INSCRIPCIÓN DE RETADOR";
+                document.getElementById('modal-info').innerText = "Clasificación: Delegación Completa. Escribe el nombre de tu escuadra.";
+                inputTeam.value = "";
+                inputTeam.placeholder = "Nombre de tu equipo retador";
+                inputTeam.disabled = false;
+                inputTeam.required = true;
+            }
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+        document.getElementById('formInscripcionManantiales').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const btnSubmit = event.target.querySelector('button[type="submit"]');
+            const originalText = btnSubmit.innerText;
+            
+            btnSubmit.innerText = "PROCESANDO CONEXIÓN...";
+            btnSubmit.disabled = true;
+
+            const name = document.getElementById('form-name').value;
+            const dni = document.getElementById('form-dni').value;
+            const phone = document.getElementById('form-phone').value;
+            const teamRaw = document.getElementById('form-team').value;
+
+            // Clasificaciones precisas requeridas
+            let tipoRegistroCalculado = currentSelectionType; // "Socio Individual" o "Equipo Retador"
+            let modalidadCalculada = currentSelectionType === "Socio Individual" ? "INDIVIDUAL" : "RETADOR GRUPAL";
+            let equipoCalculado = currentSelectionType === "Socio Individual" ? `SOCIO-${dni}` : teamRaw.toUpperCase();
+            
+            // Limpieza del número telefónico para forzar enlace directo wa.me limpio
+            let cleanPhone = phone.replace(/\D/g, '');
+            if(cleanPhone.length === 9 && !cleanPhone.startsWith('51')) {
+                cleanPhone = '51' + cleanPhone; // Forzar código internacional de Perú si omiten prefijo
+            }
+            let linkWhatsapp = `https://wa.me/${cleanPhone}`;
+
+            const params = new URLSearchParams();
+            params.append("Fecha", new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' }));
+            params.append("TipoRegistro", tipoRegistroCalculado);
+            params.append("Modalidad", modalidadCalculada);
+            params.append("Nombre", name);
+            params.append("DNI", dni);
+            params.append("Whatsapp", linkWhatsapp);
+            params.append("Equipo", equipoCalculado);
+
+            fetch(URL_WEBHOOK_EXCEL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+            })
+            .then(() => {
+                alert(`¡Inscripción guardada con éxito!\nRegistrado en la planilla como: ${equipoCalculado}`);
+                closeModal();
+                document.getElementById('formInscripcionManantiales').reset();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Ocurrió un inconveniente en el envío, revise la configuración de la URL de Apps Script.");
+            })
+            .finally(() => {
+                btnSubmit.innerText = originalText;
+                btnSubmit.disabled = false;
+            });
+        });
+
+        function applyAdminChanges() {
+            const vTitle = document.getElementById('input-adm-title').value;
+            const vDesc = document.getElementById('input-adm-desc').value;
+            const vLoc = document.getElementById('input-adm-location').value;
+            const vSch = document.getElementById('input-adm-schedule').value;
+
+            document.getElementById('view-hero-title').innerText = vTitle;
+            document.getElementById('view-hero-desc').innerText = vDesc;
+            document.getElementById('view-data-location').innerText = vLoc;
+            document.getElementById('view-data-schedule').innerText = vSch;
+
+            arrayEventos.unshift({
+                fecha: new Date().toLocaleDateString('es-PE'),
+                detalle: `Modificación de Estructura: "${vTitle}"`
+            });
+            renderizeEventTab();
+
+            alert("Estructura de anuncios actualizada.");
+            changeTab('inicio');
+        }
+
+        function renderizeEventTab() {
+            const container = document.getElementById('events-dynamic-list');
+            if(!container) return;
+            container.innerHTML = "";
+            arrayEventos.forEach(ev => {
+                const badgeStyle = ev.proximo ? "upcoming" : "";
+                container.innerHTML += `
+                    <div class="event-log-card ${badgeStyle}">
+                        <span><i class="fa-solid fa-clock-rotate-left"></i> ${ev.fecha}</span>
+                        <h4>${ev.detalle}</h4>
+                    </div>
+                `;
+            });
+        }
+
+        function uploadAdminGallery(element) {
+            if (element.files && element.files.length > 0) {
+                let filesLoaded = 0;
+                Array.from(element.files).forEach(file => {
+                    const fileReader = new FileReader();
+                    fileReader.onload = function(e) {
+                        arrayImagesGallery.push(e.target.result);
+                        filesLoaded++;
+                        if (filesLoaded === element.files.length) {
+                            localStorage.setItem('club_gallery_data', JSON.stringify(arrayImagesGallery));
+                            renderAdminGalleryThumbs();
+                            buildCarousel();
+                        }
+                    };
+                    fileReader.readAsDataURL(file);
+                });
+            }
+        }
+
+        function renderAdminGalleryThumbs() {
+            const wrapper = document.getElementById('admin-gallery-preview-area');
+            if(!wrapper) return;
+            wrapper.innerHTML = "";
+            arrayImagesGallery.forEach((img, i) => {
+                wrapper.innerHTML += `
+                    <div class="admin-thumb-wrapper">
+                        <img src="${img}">
+                        <button class="admin-thumb-del" onclick="deleteImage(${i})">×</button>
+                    </div>
+                `;
+            });
+        }
+
+        function deleteImage(index) {
+            arrayImagesGallery.splice(index, 1);
+            localStorage.setItem('club_gallery_data', JSON.stringify(arrayImagesGallery));
+            renderAdminGalleryThumbs();
+            buildCarousel();
+        }
+
+        function buildCarousel() {
+            const section = document.getElementById('eventos-carousel-section');
+            const container = document.getElementById('carousel-slides-container');
+            if(!container || !section) return;
+
+            clearInterval(timerCarousel);
+
+            if(arrayImagesGallery.length === 0) {
+                section.style.display = "none";
+                return;
+            }
+
+            section.style.display = "block";
+            container.innerHTML = "";
+
+            arrayImagesGallery.forEach((img, idx) => {
+                const activeClass = idx === 0 ? "active" : "";
+                container.innerHTML += `<div class="carousel-slide ${activeClass}" style="background-image: url('${img}');"></div>`;
+            });
+
+            indexCarousel = 0;
+            if(arrayImagesGallery.length > 1) {
+                timerCarousel = setInterval(() => {
+                    const slides = container.querySelectorAll('.carousel-slide');
+                    if(slides.length === 0) return;
+                    slides[indexCarousel].classList.remove('active');
+                    indexCarousel = (indexCarousel + 1) % slides.length;
+                    slides[indexCarousel].classList.add('active');
+                }, 3000);
+            }
+        }
+
+        function downloadPublicityPDF() {
+            const element = document.getElementById('capture-pdf-area');
+            const opt = {
+                margin: 0,
+                filename: 'Publicidad_Club_Manantiales_Cusco.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Layout controlado para PDF sin dañar la visualización móvil activa
+            element.classList.add('pdf-advertisement-layout');
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.remove('pdf-advertisement-layout');
+            }).catch(err => {
+                console.error("Fallo al generar PDF", err);
+                element.classList.remove('pdf-advertisement-layout');
+            });
+        }
+    </script>
+</body>
+</html>
